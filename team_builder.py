@@ -4,7 +4,7 @@ import pandas as pd
 
 st.set_page_config(page_title="Team Auto-Assignment", layout="wide")
 
-st.title("🔧 ระบบจัดทีมอัตโนมัติ (แบบ Snake Draft)")
+st.title("ระบบจัดทีมอัตโนมัติ (แบบ Snake Draft)")
 
 sheet_url = st.text_input("🔗 วางลิงก์ Google Sheets (.csv format)", 
     value="https://docs.google.com/spreadsheets/d/1jNPyTl3R9rg7TEaYxcLpN2Ae-QUs3Are/export?format=csv&gid=869418635")
@@ -28,7 +28,7 @@ if st.button("🚀 Load & Generate Teams"):
         df['สาย'] = [chr(65 + (i // 5)) for i in teams]  # A–J
 
         # สรุปข้อมูล
-        st.success("✅ จัดทีมเรียบร้อยแล้ว")
+        st.success("จัดทีมเรียบร้อยแล้ว")
         grouped = df.groupby('ทีมที่')[['Total']].count().rename(columns={'Total': 'จำนวนสมาชิก'})
         st.dataframe(grouped)
 
