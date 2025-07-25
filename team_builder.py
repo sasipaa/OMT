@@ -3,9 +3,9 @@ import pandas as pd
 
 st.set_page_config(page_title="Team Auto-Assignment", layout="wide")
 
-st.title("ระบบจัดทีมอัตโนมัติ (แบบ Snake Draft)")
+st.title("ระบบจัดทีมอัตโนมัติ (แบบ Snake Draft + Team Naming)")
 
-sheet_url = st.text_input("🔗 วางลิงก์ Google Sheets (.csv format)", 
+sheet_url = st.text_input("วางลิงก์ Google Sheets (.csv format)", 
     value="https://docs.google.com/spreadsheets/d/1jNPyTl3R9rg7TEaYxcLpN2Ae-QUs3Are/export?format=csv&gid=869418635")
 
 if st.button("🚀 Load & Generate Teams"):
@@ -16,7 +16,15 @@ if st.button("🚀 Load & Generate Teams"):
         df['ชื่อเต็ม'] = df['First Name'].astype(str) + " " + df['Last Name'].astype(str) + " (" + df['Nickname'].astype(str) + ")"
         df = df.sort_values(by='Total', ascending=False).reset_index(drop=True)
 
-        # Snake draft index
+        # เตรียมชื่อทีม A1–J5 แบบ Snake
+        team_names = []
+        for round_num in range(1, 6):  # 5 แถว
+            row = [f"{chr(65 + i)}{round_num}" for i in range(10)]  # A–J
+            if round_num % 2 == 0:
+                row.reverse()
+            team_names.extend(row)  # รวมทุกชื่อทีมเป็นลำดับ 50 ทีม
+
+        # Snake Draft เหมือนเดิม
         teams = []
         direction = 1
         for i in range(0, len(df), 50):
@@ -24,15 +32,11 @@ if st.button("🚀 Load & Generate Teams"):
             teams.extend(block[:min(50, len(df) - i)])
             direction *= -1
 
-        # ชื่อทีม: A1–J5
-        team_names = [f"{chr(65 + (i % 10))}{(i // 10) + 1}" for i in teams]
-        df['ทีมที่'] = team_names
-
-        # สาย: A, B, ..., J ตามชื่อทีม
-        df['สาย'] = [name[0] for name in team_names]
+        df['ทีมที่'] = [team_names[i] for i in teams]
+        df['สาย'] = [name[0] for name in df['ทีมที่']]  # ตัวอักษรแรก = สาย
 
         # สรุป
-        st.success("✅ จัดทีมเรียบร้อยแล้ว")
+        st.success("จัดทีมเรียบร้อยแล้ว")
         grouped = df.groupby('ทีมที่')[['Total']].count().rename(columns={'Total': 'จำนวนสมาชิก'})
         st.dataframe(grouped)
 
